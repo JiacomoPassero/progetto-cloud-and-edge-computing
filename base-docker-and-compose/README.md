@@ -5,6 +5,7 @@ Let's say you follow me in the development of this repo. I will explain step tha
 
 First of all I want to develop a Flask app. Hence, I will use a virtualenv with the required dependencies and some file for a better handling of Flask project.
 
+## starting point
 Let's say I want to build a Flask app with SQLAlchemy and a Postgresql Database. The structure of the folder will look like:
 ```
 base-docker-and-compose
@@ -22,7 +23,7 @@ base-docker-and-compose
 └─── requirements.txt
 ```
 
-#### `app` folder
+### `app` folder
 It contains all file regarding app being developed
 
 ### `app/app.py`
@@ -70,4 +71,39 @@ In particular, 3 main phases:
 - create tables, populate dummy data and start Flask server
 
 
+## dockerizing the app
 
+The next step is pretty straightforward, we dockerize the Flask app. In order to do that we simply add a new file into `app` folder named `Dockerfile` (https://docs.docker.com/engine/reference/builder) and we evolve the running script to a new version `run-dockered.sh`
+
+### `Dockerfile`
+
+Let's define the instruction set for our image.
+```Dockerfile
+FROM python:3.11-slim-bookworm
+```
+Starting image obviously will be a python image (Dockerhub to check the available tags and choose the appropriate one).
+
+```Dockerfile
+WORKDIR /usr/src/app
+```
+Setting the workdir in order to avoid working in the root directory. If the path does not exist, it will be created (https://docs.docker.com/engine/reference/builder/#workdir)
+
+```Dockerfile
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+```
+`ENV` instruction allow to set environment variables. In the specific case: `PYTHONDONTWRITEBYTECODE` will prevent python from writing bytecode and `PYTHONUNBUFFERED` will prevent python from buffering stdout and stderr.
+
+```Dockerfile
+RUN pip install --upgrade pip
+COPY ./requirements.txt /usr/src/app/requirements.txt
+RUN pip install -r requirements.txt
+```
+`RUN` instruction will allow the execution of a command, while `COPY` will copy file(s) from local path to container. A very similar instruction would be `ADD` but since difference are very thin and specific a general rulo would be to preferr `COPY`.
+This block will first upgrade `pip`, then copy `requirements.txt` to install dependecies.
+
+```Dockerfile
+COPY . .
+```
+Equivalent to `COPY . /usr/src/app` since a WORKDIR has been defined.
+The whole content of local folder get copied inside the container. 
