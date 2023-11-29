@@ -107,3 +107,14 @@ COPY . .
 ```
 Equivalent to `COPY . /usr/src/app` since a WORKDIR has been defined.
 The whole content of local folder get copied inside the container. 
+
+### `run-dockered.sh`
+A simple script to run the dockered version.
+In particular, 4 main phases:
+- create a common network for the services
+
+- start a postgres container and wait for it to be ready to receive calls
+
+- build and start flask image/container
+
+- create tables, populate dummy data s
