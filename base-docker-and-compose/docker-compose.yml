@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+
+  app:
+    container_name: flask-app
+    build: 
+      context: app
+      dockerfile: Dockerfile
+    command: python manage.py run -h 0.0.0.0
+    depends_on:
+      - db
+    environment:
+    - FLASK_APP=app.py
+    - FLASK_DEBUG=1
+    - DATABASE_URL=postgresql://hello_flask:hello_flask@flaskproject-pg:5432/hello_flask_de
+    - APP_FOLDER=/usr/src/app
+
+    ports:
+      - 5000:5000
+    
+  db:
+    container_name: flaskproject-postgres
+    hostname: flaskproject-pg 
+    image: postgres:13
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_flask
+      - POSTGRES_PASSWORD=hello_flask
+      - POSTGRES_DB=hello_flask_de
+
+
+volumes:
+  db-data:
+    name: flaskproject-pgslq-data

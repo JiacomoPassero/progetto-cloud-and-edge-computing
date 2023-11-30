@@ -1,0 +1,208 @@
+version: "3"
+
+# top level elements: services, volumes, networks, configs, secrets
+
+services:
+
+  app:
+    # omitted usually
+    attach: true # if false does not collect service logs until you explicitly require it
+    # logging: # define logging configuration, needs 'driver' and 'options'
+    # privileged: # run with elevated privileges (NOTE by me: hardly you will need this!)
+    
+    # profile detail: https://docs.docker.com/compose/profiles/
+    # profile: ["debug"] # list of profile, this will start only if docker compose --profile debug up
+
+
+    # extends lets you share common configurations among different files: https://docs.docker.com/compose/compose-file/05-services/#extends
+    # extend: 
+    
+    # defines the container_name BUT it won't allow to spawn more than one service
+    container_name: flask-app # internally will work as hostname too
+    # domainname:
+    # hostaname:
+    # extra_hosts: # adds hostname mappings (/etc/hosts)
+    # labels: # labels add metadata to containers 
+
+    # image specifies the image to start the container from
+    image: python:3.11
+    # optional, if present compose will ignore "image" section
+    build: # full documentation at: https://docs.docker.com/compose/compose-file/build/
+      context: app # specify the folder where to finde the context for building (default . )
+      dockerfile: prod.Dockerfile # can be used to specify Dockerfile name (default: Dockerfile)
+
+    # pull_policy: # defines the decisions Compose makes when it starts to pull images
+
+    # restart define the restart policy
+    restart: "no" # default policy, can be omitted
+    # restart: always
+    # restart: on-failure
+    # restart: unless-stopped
+
+    # runtime: # define which runtime to use for containers https://docs.docker.com/compose/compose-file/05-services/#runtime
+
+    # overrides the CMD defined in your Dockerfile or in image's Dockerfile
+    command: python manage.py run -h 0.0.0.0
+
+    # user: overrides the user used to run the container process, defaul is root or what is defined by USER in image's Dockerfile
+
+    # userns_mode: sets the user namespace for the service, the only option is 'host'
+    # the reality is that if you configured docker to be used with a user namespace remap, this option disable it for the specific service
+    # useful for context like a proxy automation in front of a series of services
+
+
+    # overrides the ENTRYPOINT in Dockerfile (yours or image), the script can be an .sh or defined
+    entrypoint:
+    # NOTE: If the value is null, the default entrypoint from the image is used
+    # If the value is [] or '', the default entrypoint declared by the image is ignored
+    
+    # group_add specifies additional groups, by name or number, which the user inside the container must be a member of.
+    # group_add:
+
+    # healthcheck allow me to run test to understand if container is healty https://docs.docker.com/compose/compose-file/05-services/#healthcheck
+    # healthcheck:
+
+    # define other services which this depends on, by default it will depend only on service start
+    # NOTE: service start doesn't always means it's ready to answer, example first run of mariadb
+    # short syntax with default behaviour
+    # depends_on: 
+    #   - db
+    # long-syntax https://docs.docker.com/compose/compose-file/05-services/#long-syntax-1
+    depends_on:
+      db:
+        required: true
+        condition: service_started
+        # condition: service_healthy # other option: service_started, service_completed_successfully
+        # if you choose "service_healty" the dependant service must have an healthcheck configured
+        restart: true
+    
+    # external_links link service containers to services managed outside of your Compose application, you must provide a list of existing container name
+    # external_links:
+    
+    # links defines a network link to containers in another service. Either specify both the service name and a link alias (SERVICE:ALIAS), or just the service name
+    # linked service are reachable at a hostname identical to the alias, or the service name. 
+    # Not required to enable services to communicate. 
+    # When no specific network configuration is set, any service is able to reach any other service on defalut network.
+    # links does not override the network configuration and services not attached to a shared network are not be able to communicate
+    # links:
+
+    # deploy allow to fine tune resurces for deploy: https://docs.docker.com/compose/compose-file/deploy/
+    # deploy:
+    # develop allow to define development hook to i.e. rebuild or sync data: https://docs.docker.com/compose/compose-file/develop/
+    # develop:
+
+    # env_file adds environment variable to container https://docs.docker.com/compose/compose-file/05-services/#env_file
+    # env_file:
+
+    # environment defines environment variables set in the container
+    environment:
+    - FLASK_APP=app.py
+    - FLASK_DEBUG=1
+    - DATABASE_URL=postgresql://hello_flask:hello_flask@flaskproject-pg:5432/hello_flask_de
+    - APP_FOLDER=/home/app/web
+
+    # secrets: # grant access to defined secrets https://docs.docker.com/compose/compose-file/05-services/#secrets
+
+    # expose container port
+    ports: # https://docs.docker.com/compose/compose-file/05-services/#long-syntax-3
+      - 5000:5000
+
+    dns: # specify one or more dns to use, maybe a private one
+      - 116.202.176.26 # libreDNS
+    # dns_opt: custom DNS options to be placed in /etc/resolv.conf inside container 
+    # dns_search: defines custom DNS search domains (single value or a list)
+    
+    # network_mode: none|host|service:{service_name}
+
+    # networks options: https://docs.docker.com/compose/compose-file/05-services/#networks
+    networks:
+      - default
+
+    # volumes options https://docs.docker.com/compose/compose-file/05-services/#volumes
+    volumes:
+      - ./apps:/home/app # mapping the local folder to a specific folder inside the contianer
+
+    # volumes_from: # mounts all of the volumes from another service or container 
+    # you can optionally specify read-only access ro or read-write rw (default)
+
+    # working_dir: # overrides the container's working directory which is specified by the image (Dockerfile's WORKDIR)
+
+    # read_only: # configures the service container to be created with a read-only filesystem
+
+      
+    # BELOW a series of available options to tune: https://docs.docker.com/compose/compose-file/05-services/#blkio_config
+    # blkio_config: # configuration to set block IO limits
+    # cpu_count: # defines the number of usable CPUs for service container.
+    # cpu_percent: #  defines the usable percentage of the available CPUs.
+    # cpu_shares: # defines, as integer value, a service container's relative CPU weight versus other containers.
+    # cpu_period: # configures CPU CFS (Completely Fair Scheduler) period when a platform is based on Linux kernel.
+    # cpu_quota: # cpu_quota configures CPU CFS (Completely Fair Scheduler) quota when a platform is based on Linux kernel.
+    # cpu_rt_runtime: # cpu_rt_runtime configures CPU allocation parameters for platforms with support for realtime scheduler. It can be either an integer value using microseconds as unit or a duration.
+    # cpu_rt_period: # cpu_rt_period configures CPU allocation parameters for platforms with support for realtime scheduler. It can be either an integer value using microseconds as unit or a duration.
+    # cap_add: # cap_add specifies additional container capabilities as strings.
+    # cap_drop: # cap_drop specifies container capabilities to drop as strings.
+    # cgroup: # cgroup specifies the cgroup namespace to join. When unset, it is the container runtime's decision to select which cgroup namespace to use, if supported.
+    # cgroup_parent: # cgroup_parent specifies an optional parent cgroup for the container
+    # mem_swappiness: # defines as a percentage, a value between 0 and 100, for the host kernel to swap out anonymous memory pages used by a container
+    # memswap_limit: # defines the amount of memory the container is allowed to swap to disk
+    # oom_kill_disable: # if set Compose configures the platform so it won't kill the container in case of memory starvation.
+    # oom_score_adj: # tunes the preference for containers to be killed by platform in case of memory starvation. Value must be within [-1000,1000] range.
+    # pid: # sets the PID mode for container
+    # platform: # defines the target platform, syntax: os[/arch[/variant]]
+    # security_opt: # overrides the default labeling scheme for each container.
+    # shm_size: # configures the size of the shared memory
+    # stdin_open: # configures a service containers to run with an allocated stdin.
+    # stop_grace_period: # specifies how long Compose must wait when attempting to stop a container if it doesn't handle SIGTERM (or whichever stop signal has been specified with stop_signal), before sending SIGKILL.
+    # storage_opt: # defines storage driver options for a service
+    # tmpfs: # mounts a temporary file system inside the container
+    # tty: # configures service container to run with a TTY
+    # ulimits: # overrides the default ulimits for a container
+
+
+    # other advanced features:
+    # device_cgroup_rules:
+    # init:
+    # ipc:
+    # uts:
+    # isolation:
+    # stop_signal:
+    # sysctls:
+  
+  # another services
+  db:
+    container_name: flaskproject-postgres
+    hostname: flaskproject-pg 
+    image: postgres:13
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_flask
+      - POSTGRES_PASSWORD=hello_flask
+      - POSTGRES_DB=hello_flask_de
+
+
+# list of network defintion for this compose: https://docs.docker.com/compose/compose-file/06-networks/
+# usually a simple list of name, they will be network
+networks:
+  default: # default driver will be 'bridge'
+  # classic net in case of proxy automation https://github.com/evertramos/nginx-proxy-automation.git
+  # main-proxy-netexternal: 
+  #   external: true
+  #   name: name-of-external-proxy-net
+
+
+# list of volume definitions for this compose: https://docs.docker.com/compose/compose-file/07-volumes/
+# usually a simple list of name (again)
+volumes:
+  db-data:
+    name: flaskproject-pgslq-data
+  
+  # external-volume:
+  #   external: true
+  #   name: name-of-the-external-volume
+
+# less common top-level elements
+
+# configs: # https://docs.docker.com/compose/compose-file/08-configs/
+
+# secrets: # https://docs.docker.com/compose/compose-file/09-secrets/
