@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cp .env.template .env
+cp env.template .env

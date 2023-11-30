@@ -226,3 +226,11 @@ To better handling the whole project everything that may change between developm
 We won't commit an `.env` file, it will remain "gitignored", instead we will commit a `.env.template` and eventually write a script to intialize the environment.
 Typical scripts make use of `pwgen` to create passwords where needed.
 For now our script will simply copy `.env.template` into `.env`
+
+
+## Prod compose using profiles
+
+As from documentation (https://docs.docker.com/compose/profiles/) we can make great use of profiles.
+We define two main profile `dev` and  `prod` and using yaml fragment feature (https://docs.docker.com/compose/compose-file/10-fragments/) we make so common part get shared between services.
+
+We create two different services, one for prod and one for dev. The prod one will also use a differente `Dockerfile` taking advantage of multi-stage feature (https://docs.docker.com/build/building/multi-stage/)

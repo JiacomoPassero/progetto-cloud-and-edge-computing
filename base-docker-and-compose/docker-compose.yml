@@ -1,35 +1,57 @@
 version: "3"
 
+x-environment: &default-app-variables
+  DATABASE:
+  FLASK_APP:
+  DATABASE_URL:
+  APP_FOLDER:
+  SQL_HOST:
+  SQL_PORT:
+
+x-app: &default-app-service
+  container_name: ${FLASK_CONTAINER_NAME}
+  build: 
+    context: app
+    dockerfile: Dockerfile
+  depends_on:
+    - db
+  ports:
+    - 5000:5000
+    
+
 services:
 
-  app:
-    container_name: ${FLASK_CONTAINER_NAME}
+  app-dev:
+    profiles: ["dev"]
+    <<: *default-app-service
+    command: python manage.py run -h 0.0.0.0
+    environment:
+      <<: *default-app-variables
+      FLASK_DEBUG: 1
+      
+  app-prod:
+    profiles: ["prod"]
+    <<: *default-app-service
+    command: gunicorn --bind 0.0.0.0:5000 manage:app
+    environment:
+      <<: *default-app-variables
+      FLASK_DEBUG: 0
     build: 
       context: app
-      dockerfile: Dockerfile
-    command: python manage.py run -h 0.0.0.0
-    depends_on:
-      - db
-    environment:
-      - DATABASE
-      - FLASK_APP
-      - FLASK_DEBUG
-      - DATABASE_URL
-      - APP_FOLDER
+      dockerfile: prod.Dockerfile
 
-    ports:
-      - 5000:5000
-    
   db:
     container_name: ${PGSQL_CONTAINER_NAME}
     hostname: ${PGSQL_CONTAINER_NAME}
     image: postgres:13
+    profiles: ["dev", "prod"]
     volumes:
       - db-data:/var/lib/postgresql/data/
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+
 
 volumes:
   db-data:
