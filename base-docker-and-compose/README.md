@@ -220,3 +220,9 @@ In a production environment we most likely collect statics or similar action tha
 `exec "$@"` will allow the execution of whatever command we pass to the application.
 So we usually don't close the entrypoint with a "run the application" command, rather we leave the possibility to run it to subsequent commands.
 
+## Environment variables
+
+To better handling the whole project everything that may change between development and production, or between instances needs to be addressed with environment variables.
+We won't commit an `.env` file, it will remain "gitignored", instead we will commit a `.env.template` and eventually write a script to intialize the environment.
+Typical scripts make use of `pwgen` to create passwords where needed.
+For now our script will simply copy `.env.template` into `.env`
