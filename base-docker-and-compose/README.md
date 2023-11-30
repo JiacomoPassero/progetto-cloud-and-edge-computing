@@ -162,3 +162,61 @@ volumes:
       - flaskproject-pgslq-data:/var/lib/postgresql/data/   
 ```
 The file `detailed.docker-compose.yml` is an extended version that include most of the possible elements and attribute that can be used inside a docker compose, with direct link to documentation.
+
+
+## beyond docker compose
+
+### `entrypoint.sh`
+
+As stated also before one of the key point before we can declare our Flask app healty is DB readyness. We have created a call in manage.py but the most common way to address the issue is by using entrypoint feature of containers.
+Entrypoint are literarly point of access to our container. If we specify an entrypoint it means that before starting our container will run the entrypoint, and each and every command of our app will be handled by the entrypoint (also the `CMD` or `command` in our `Dockerfile` or `docker-compose.yml`).
+
+Typical entrypoint for python application with DB interaction will be:
+```bash
+#!/bin/sh
+
+if [ "$DATABASE" = "postgres" ]
+then
+    echo "Waiting for postgres..."
+
+    while ! nc -z $SQL_HOST $SQL_PORT; do
+      sleep 0.1
+    done
+
+    echo "PostgreSQL started"
+fi
+
+python manage.py create_db
+
+exec "$@"
+```
+
+In details:
+
+```bash
+if [ "$DATABASE" = "postgres" ]
+```
+We will understand this in detail in the next section, but it moslty serve the purpose of distinguishing between development and production case. If we use a sqlite for development, the test we are going to do is meaningless.
+
+```bash
+    while ! nc -z $SQL_HOST $SQL_PORT; do
+      sleep 0.1
+    done
+```
+If postgres is our database choice, then we need to wait until it is ready to answer us. To do so we use netcat and wait until postgres server answer before continuing.
+NOTE that not all images have netcat preinstalled (very few of them in reality) hence we need also to take care of this aspect by adding something like the following to our `Dockerfile`:
+```Dockerfile
+
+RUN apt-get update && apt-get install -y netcat
+```
+
+Final part of entrypoint is very application specific, we start by ensuring that the database exists BUT in production environment that would not be the case. 
+```bash
+python manage.py create_db
+
+exec "$@"
+```
+In a production environment we most likely collect statics or similar action that can be automated without any real risk.
+`exec "$@"` will allow the execution of whatever command we pass to the application.
+So we usually don't close the entrypoint with a "run the application" command, rather we leave the possibility to run it to subsequent commands.
+
