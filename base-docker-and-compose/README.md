@@ -117,4 +117,48 @@ In particular, 4 main phases:
 
 - build and start flask image/container
 
-- create tables, populate dummy data s
+- create tables, populate dummy data
+
+
+## using docker compose
+
+The next step will be transitioning everything to a `docker-compose.yml` file.
+Having already the docker run command for the service structure, the transition will be very smooth.
+Staring from `run-dockered.sh` we know that we need a common network and 2 services.
+Network won't be a problem, all services inside a docker-compose by default are isolated in the same default network.
+
+For the services we need simply to translate the `docker run` command into the equivalent `docker compose` version.
+
+In example the command:
+```bash
+docker container run -e "POSTGRES_USER=hello_flask" -e "POSTGRES_PASSWORD=hello_flask" -e "POSTGRES_DB=hello_flask_dev" --name="flask-pg-localrun" -p 5432:5432 --rm -d postgres:13
+
+```
+become a services in the `docker-compose.yml` file like this:
+```yaml
+  db:
+    container_name: flask-pg-localrun
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=hello_flask
+      - POSTGRES_PASSWORD=hello_flask
+      - POSTGRES_DB=hello_flask_de
+    ports:
+      - 5432:5432
+```
+
+Instead of a simple translation we will made little adjustement. Specifically, we will remove `ports` since postgres doesn't need to be reachable from outside the default network of the compose file. Moreover we will create a volume to make postgres data permanent.
+
+The best way to add a volume is to define a volume in the top-level elements `volumes` and then map it to a path internal to the container.
+So, in the top-level `volumes` elements:
+```yaml
+volumes:
+  db-data:
+    name: flaskproject-pgslq-data
+```
+And then in the service definition we add:
+```yaml
+volumes:
+      - flaskproject-pgslq-data:/var/lib/postgresql/data/   
+```
+The file `detailed.docker-compose.yml` is an extended version that include most of the possible elements and attribute that can be used inside a docker compose, with direct link to documentation.
