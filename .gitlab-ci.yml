@@ -20,7 +20,7 @@ flake8_test:  # the name can be whatever you like
     - pip install --upgrade pip
     - pip install -r base-docker-and-compose/app/requirements.txt
   script:
-    - flake8 --ignore=E501 base-docker-and-compose/app/requirements.txt
+    - flake8 --ignore=E501 base-docker-and-compose/app/
 
 release_stage_label:
   stage: release
