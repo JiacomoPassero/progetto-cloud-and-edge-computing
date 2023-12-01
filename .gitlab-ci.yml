@@ -12,8 +12,9 @@ default:
 flake8_test:  # the name can be whatever you like
   stage: test
   image: python:latest
-  tags:
-    - python
+  only:
+    - main
+    - /^dev_[0-9]+(?:.[0-9]+)+$/ 
   before_script:
     - python --version
     - pip install --upgrade pip
