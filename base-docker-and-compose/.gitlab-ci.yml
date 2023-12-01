@@ -1,0 +1,30 @@
+stages:
+  - test
+  - release
+
+default:
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo -n $CI_REGISTRY_TOKEN | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+
+flake8_test:  # the name can be whatever you like
+  stage: test
+  image: python:latest
+  before_script:
+    - python --version
+    - pip install --upgrade pip
+    - pip install -r base-docker-and-compose/app/requirements.txt
+  script:
+    - flake8 --ignore=E501 base-docker-and-compose/app/requirements.txt
+
+release_stage_label:
+  stage: release
+  only:
+    - main
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
