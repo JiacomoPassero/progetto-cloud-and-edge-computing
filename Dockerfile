@@ -1,10 +1,12 @@
 # Use an official Python runtime as a parent image
-FROM python
+FROM python:3.7
 
 #define default flask application
-ENV FLASK_APP app.py
+ENV FLASK_APP=app.py
 
-WORKDIR ./
+WORKDIR /app
+
+COPY . /app
 
 #aggiornamento pip
 RUN pip install --upgrade pip
