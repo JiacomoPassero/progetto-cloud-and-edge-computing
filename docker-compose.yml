@@ -1,0 +1,24 @@
+networks:
+  flask-network:
+
+services:
+  #flask application con la propria immagine
+  flask-app:
+    container_name: flask-app
+    build: .
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    networks:
+      - flask-network
+  #DB per il comando: docker run --rm --name flask-db-test -e POSTGRES_PASSWORD=passwordhere -e POSTGRES_USER=flask -e POSTGRES_DB=blog postgres
+  db:
+    image: postgres
+    container_name: flask-db-test
+    environment:
+      POSTGRES_PASSWORD: passwordhere
+      POSTRGRES_USER: flask
+      POSTRES_DB: blog
+    networks:
+      - flask-network

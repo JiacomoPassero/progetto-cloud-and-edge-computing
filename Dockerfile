@@ -1,14 +1,22 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
-# Set the working directory to /app
-WORKDIR /app
-# Copy the current directory contents into the container at /app
-COPY . /app
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
-# Define environment variable
-ENV FLASK_APP hello.py
+FROM python
+
+#define default flask application
+ENV FLASK_APP app.py
+
+WORKDIR ./
+
+#aggiornamento pip
+RUN pip install --upgrade pip
+
+# installare requirements
+RUN pip install -r requirements.txt
+
+# Make port 8080 available to the world outside this container
+EXPOSE 8080
+
+#run confgurations needed for the first start of the application
+RUN "bash first_start.sh"
+
 # Run app.py when the container launches
 CMD ["flask" , "run"]
