@@ -1,5 +1,3 @@
-Conatainerizzazione del progetto
-
 **Containerizzazione del progetto:**
 Le prime modifiche applicate al progetto hanno come obbiettivo containerizzare l'applicazione flask e unirla al database postgres usando docker compose.ù
 In questo modo si ottiene la di poter avvire l'applicazione usando un solo comando e se ne facilita il monitoraggio tramite l'interfaccia di docker.
