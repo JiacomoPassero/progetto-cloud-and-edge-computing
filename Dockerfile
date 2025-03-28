@@ -1,11 +1,10 @@
 # Use an official Python runtime as a parent image
-FROM python:3.7
+FROM python:3.11
 
-#define default flask application
-ENV FLASK_APP=app.py
-
+#define workdir
 WORKDIR /app
 
+#copy application inside workdir
 COPY . /app
 
 #aggiornamento pip
@@ -14,11 +13,14 @@ RUN pip install --upgrade pip
 # installare requirements
 RUN pip install -r requirements.txt
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
+#define default flask application
+ENV FLASK_APP=app.py
 
-#run confgurations needed for the first start of the application
-RUN "bash first_start.sh"
+#make first_start executable
+run chmod +x first_start.sh
+
+# Make port 5000 available to the world outside this container
+EXPOSE 5000
 
 # Run app.py when the container launches
-CMD ["flask" , "run"]
+ENTRYPOINT ["./first_start.sh"]
