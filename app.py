@@ -15,7 +15,7 @@ app = Flask(__name__)
 freezer = Freezer(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://flask:passwordhere@flask-db-test:5432/blog"
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://flask:passwordhere@localhost:5432/blog"
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
