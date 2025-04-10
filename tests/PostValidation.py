@@ -2,13 +2,13 @@ import unittest
 import re
 import os
 """Fnctuon to extract the template from an header file"""
-def extract_fields(post_path):
+def extract_fields(post_path, separator):
     #Extract post structure from template file
     with open(post_path, 'r') as template_file:
         header_text = ""
         #Extract lines unitl "---" that marks the end of the header
         for line in template_file:
-            if "---" in line:
+            if separator in line:
                 break
             else:
                 header_text += line
@@ -18,22 +18,41 @@ def extract_fields(post_path):
         required_fields = field_pattern.findall(header_text)
         return required_fields
 
+"""Check if the post contains the separator line between the header and the body"""
+def contains_separator(post_path, separator):
+    #iter over file line
+    with open(post_path, 'r') as template_file:
+        header_text = ""
+        #check if the separator line is present
+        for line in template_file:
+            #separator is a single line
+            if separator + "\n" == line:
+                return True
+
+    return False
+
 
 class PostValidator(unittest.TestCase):
     def setUp(self):
         self.template_path = "./posts/template.md.tmpl"
         self.posts_path = "./posts/en/"
+        self.separator = "---"
 
     def testStructure(self):
         #if file not present than the setup fails
-        template_fields = extract_fields(self.template_path)
+        template_fields = extract_fields(self.template_path, self.separator)
         if len(template_fields) == 0:
             self.fail("Failed to extract the post template fields, check template indentation")
         
         #every post must have the same header fields of the template 
         for post in os.listdir(self.posts_path):
+            post_path = os.path.join(self.posts_path, post)
+
+            #check if separator between content and header is present
+            self.assertTrue(contains_separator(post_path, self.separator), f"Post {post} does not contains header separator")
+
             #extract and compare the post header
-            post_fields = extract_fields(os.path.join(self.posts_path, post)) 
+            post_fields = extract_fields(os.path.join(self.posts_path, post), self.separator) 
             self.assertEqual(post_fields, template_fields, f"Post {post} does not match the template header structure")
 
 
