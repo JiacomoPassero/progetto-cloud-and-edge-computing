@@ -47,7 +47,6 @@ def extract_field_value(post_path, field):
     #return only the value of the line stripped from excessive spaces
     return field_line[0].split(":")[1].strip()
 
-
 class PostValidator(unittest.TestCase):
     def setUp(self):
         self.template_path = "./posts/template.md.tmpl"
