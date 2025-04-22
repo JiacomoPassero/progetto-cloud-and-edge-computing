@@ -31,5 +31,5 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd ~/progetto-cloud-and-edge-computing
-            docker compose down || true
-            docker compose up -d --build
+            docker-compose down || true
+            docker-compose up -d --build
