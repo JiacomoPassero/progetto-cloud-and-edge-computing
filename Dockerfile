@@ -23,4 +23,4 @@ run chmod +x first_start.sh
 EXPOSE 5000
 
 # Run app.py when the container launches
-ENTRYPOINT ["./first_start.sh"]
+CMD ["./first_start.sh"]
