@@ -8,6 +8,8 @@ services:
       POSTGRES_PASSWORD: passwordhere
       POSTGRES_USER: flask
       POSTGRES_DB: blog
+    volumes:
+      - flusk-db:/var/lib/postgresql/data
     networks:
       - flask-network
   #flask application con la propria immagine
@@ -26,3 +28,6 @@ services:
 networks:
   flask-network:
     driver: bridge
+
+volumes:
+  flusk-db:
