@@ -10,13 +10,13 @@ Dopo aver copiato i file sorgente e i post nella work directory vengono installa
 
 ## Docker Compose
 Applicazione flusk e database sono stati separati su due container la cui orchestrazione è gestita tramite l’apposito file [docker-compose.yml](https://github.com/JiacomoPassero/progetto-cloud-and-edge-computing/blob/produzione/docker-compose.yml).
-Il database utilizza un immagine docker postgres definendone il nome del container e la coppia username/password necessari per connettersi.
+Il database utilizza un immagine docker postgres definendone il nome e la coppia username/password necessari per connettersi.
 Il secondo container ospitante l'applicazione flask usa il dockerfile definito nel progetto come immagine, descritto nella sezione precedente.
 
 I due container sono connessi alla stessa rete privata usando un driver bridge e solamente la porta del sistema utilizzata dall’applicazione flusk viene mappata verso l’esterno.
-Si è scelto di utilizzare solamente la porta 8080 per ridurre al minimo le connessioni con l’esterno attraverso il protocollo https.
+Per il protocollo HTTP sono ammesse solamente connessioni sulla porta 8080 così da ridurre la superficie d'attacco del sistema.
 
-Tramite l’uso di docker compose diventa possibile inizializzare ed avviare il progetto tramite l’esecuzione di un solo comando (docker compose up –build) ottenendo un processo più semplice rispetto alla versione iniziale del progetto.
+Tramite l’uso di docker compose diventa possibile inizializzare ed avviare il progetto tramite l’esecuzione di un solo comando (docker compose up --build) ottenendo un processo più semplice rispetto alla versione iniziale.
 
 ## CI/CD PIPELINE
 Per automatizzare le fasi di testing e deploy sono stati usati i workflows di github ovvero un meccanismo che permette di eseguire del codice (tramite containerizzazione) al verificarsi di determinati eventi nel repository; solitamente push su determinati branch.
@@ -41,7 +41,13 @@ Sono disponibili ulteriori servizi AWS per permettere al progetto una scalabilit
 
 Le operazioni di deploy avvengono in un job dedicato che si connette all’istanza EC2 tramite canale SSH.
 La connessione è implementata tramite una github action appositamente implementata e resa disponibile pubblicamente sulla stessa piattaforma.
+
 Per permettere questo passaggio è necessario aggiungere al progetto alcuni dati sensibili che sono salvati nell’area Secrets di github per gestirli in maniera sicura.
+
+L'istanza EC2 gratuita non permette di avere un hostname fisso dunque l'indirizzo pubblico può cambiare a seguito di interruzioni del suo funzionamento oppure dopo un reboot.
+Quando ciò avviene è necessario aggiornare i Secrets dell'applicazione.
+
+Lo stesso vale per quando la durata delle credenziali di connession scade.
 
 Il job in caso di push sul branch “produzione” si connette all’istanza, copia i file aggiornati del repository nel sistema operativo dell’host e avvia il docker-compose del progetto ricreando creando il container aggiornato.
 
