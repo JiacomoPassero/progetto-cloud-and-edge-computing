@@ -34,7 +34,7 @@ Il file StaticAnalisys.py invece controlla il contenuto di app.py individuando u
 Il test fallisce se il progetto è impostato per essere eccessivamente verboso in caso di crash: un comportamento che costituisce una vulnerabilità di sicurezza.
 
 ## Deploy
-Il deploy avviene su un'istanza amazon EC2 di tipo t2.micro impostata solo per accettare connessioni con un approccio whitelist/allowlist: solo HTTPS sulla porta 8080 e connessioni SSH con autenticazione tramite chiave asimmetrica.
+Il deploy avviene su un'istanza amazon EC2 di tipo t2.micro impostata solo per accettare connessioni con un approccio whitelist/allowlist: solo HTTP sulla porta 8080 e connessioni SSH con autenticazione tramite chiave asimmetrica per l'aggiornamento del sito.
 Le regole di connessione sono implementate tramite security groups di AWS: uno dedicato alle connessioni HTTPS e un secondo dedicato ad SSH. 
 
 Sono disponibili ulteriori servizi AWS per permettere al progetto una scalabilità automatica completamente gestita ma che sono stati scartati perché eccessivi per le funzionalità presenti ed evitare costi imprevisti.
