@@ -18,6 +18,11 @@ Per il protocollo HTTP sono ammesse solamente connessioni sulla porta 8080 così
 
 Tramite l’uso di docker compose diventa possibile inizializzare ed avviare il progetto tramite l’esecuzione di un solo comando (docker compose up --build) ottenendo un processo più semplice rispetto alla versione iniziale.
 
+## Docker Volumes
+L'applicazione dispone di un semplice database con una sola tabella nel quale vengono raccolte le views complessive per ogni post.
+Questo dato è stato reso persistente creando un volume apposito usato dal container flusk-db-test; altrimenti questa informazione verrebbe resettata ad ogni aggiornamento del progetto in produzione.
+Il docker volume è persistenze alle interruzioni dell'istanza EC2 a meno che essa non venga terminata definitivamente eliminando tutti i file che contiene.
+
 ## CI/CD PIPELINE
 Per automatizzare le fasi di testing e deploy sono stati usati i workflows di github ovvero un meccanismo che permette di eseguire del codice (tramite containerizzazione) al verificarsi di determinati eventi nel repository; solitamente push su determinati branch.
 
