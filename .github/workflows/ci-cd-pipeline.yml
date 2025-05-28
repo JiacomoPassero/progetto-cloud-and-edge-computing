@@ -26,9 +26,6 @@ jobs:
     
   static-analisys:
     runs-on: ubuntu-latest
-    needs: tests
-    if: needs.tests.result == 'success'
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -48,9 +45,9 @@ jobs:
   
   deploy:
     name: Deploy to EC2
-    needs: static-analisys
-    if: needs.static-analisys.result == 'success'
-
+    needs: 
+      - tests
+      - static-analisys
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
