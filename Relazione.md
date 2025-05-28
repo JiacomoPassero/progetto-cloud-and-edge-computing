@@ -27,11 +27,11 @@ Il docker volume è persistenze alle interruzioni dell'istanza EC2 a meno che es
 Per automatizzare le fasi di testing e deploy sono stati usati i workflows di github ovvero un meccanismo che permette di eseguire del codice (tramite containerizzazione) al verificarsi di determinati eventi nel repository; solitamente push su determinati branch.
 
 Un workflow è definito da un file YAML al cui interno sono specificati vari jobs contenenti comandi di setup e il codice da eseguire.
-Il progetto definisce in un unico [workflow](https://github.com/JiacomoPassero/progetto-cloud-and-edge-computing/blob/produzione/.github/workflows/ci-cd-pipeline.yml) un job di deploy che dipende da due job di testing in modo che la pubblicazione di una modifica non avvenga a meno che i controlli sulle funzionalità non siano superati.
+Il progetto definisce in un unico [workflow](https://github.com/JiacomoPassero/progetto-cloud-and-edge-computing/blob/produzione/.github/workflows/ci-cd-pipeline.yml) composto da un job di deploy che dipende da due job di testing in modo che la pubblicazione di una modifica non avvenga a meno che i controlli sulle funzionalità non siano superati.
 
 Questa sequenza implementa una logica di sicurezza che interrompe l’aggiornamento del progetto se sono presenti potenziali vulnerabilità che verrebbero trasferite sull’istanza EC2 connessa ad internet.
 
-## Test
+## Test a Analisi
 Per la parte di continuous integration sono stati scritti due test suits che verificano correttezza del progetto e la qualità minima del codice da una prospettiva di sicurezza.
 
 Il file PostValidation.py contiene un insieme di test che valida la struttura dei post affinchè  rispettino il template fornito.
@@ -52,7 +52,7 @@ Per permettere questo passaggio è necessario aggiungere al progetto alcuni dati
 L'istanza EC2 gratuita non permette di avere un hostname fisso dunque l'indirizzo pubblico può cambiare a seguito di interruzioni del suo funzionamento oppure dopo un reboot.
 Quando ciò avviene è necessario aggiornare i Secrets dell'applicazione.
 
-Lo stesso vale per quando la durata delle credenziali di connession scade.
+Lo stesso vale per quando la durata delle credenziali di connession scade e se de devono creare di nuove.
 
 Il job in caso di push sul branch “produzione” si connette all’istanza, copia i file aggiornati del repository nel sistema operativo dell’host e avvia il docker-compose del progetto ricreando creando il container aggiornato.
 
