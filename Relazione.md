@@ -56,3 +56,7 @@ Lo stesso vale per quando la durata delle credenziali di connession scade e se d
 
 Il job in caso di push sul branch “produzione” si connette all’istanza, copia i file aggiornati del repository nel sistema operativo dell’host e avvia il docker-compose del progetto ricreando creando il container aggiornato.
 
+## Sviluppi Futuri
+L'analisi statica del codice può essere migliorata aggiungendo ulteriori regole di validazione oppure integrando l'utilizzo di strumenti sviluppati a tale scopo.
+Inoltre si può migliorare la qualità del codice evitando di esporre lo username e la password del database del progetto.
+
